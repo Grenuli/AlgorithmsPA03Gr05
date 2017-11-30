@@ -13,10 +13,15 @@ SkipList::SkipList(vector<int64_t> const &x)
 	{
 		insert(x[i]);
 	}
-	
-	for (Node* i = head; i != nullptr; i = (*i).forward[0])
+	printf("\n");
+	for (int currentLevel = maxLevel; currentLevel > 0; currentLevel--)
 	{
-		printf("%d->", (*i).value);
+
+		for (Node* i = head; i != nullptr; i = (*i).forward[currentLevel - 1])
+		{
+			printf("%d->", (*i).value);
+		}
+		printf("\n");
 	}
 }
 
@@ -38,14 +43,17 @@ bool SkipList::insert(int64_t const x)
 
 	Node* lastNode;
 	Node* i;
-	for (i = head; i != nullptr && (*i).value < x; i = (*i).forward[0])
+	Node* newNode = new Node(0, x, level);
+	for (int currentLevel = level; currentLevel > 0; currentLevel--)
 	{
-		lastNode = i;
-	}
+		for (i = head; i != nullptr && (*i).value < x; i = (*i).forward[currentLevel-1])
+		{
+			lastNode = i;
+		}
 
-	Node* newNode = new Node(0, x, 1);
-	(*newNode).forward[0] = i;
-	(*lastNode).forward[0] = newNode;
+		(*newNode).forward[currentLevel - 1] = i;
+		(*lastNode).forward[currentLevel - 1] = newNode;
+	}
 
 	return false;
 }
@@ -67,6 +75,9 @@ int SkipList::getRandomLevel()
 
 	if (abs(level) == maxLevel) {
 		maxLevel = maxLevel++;
+
+		//update head
+		(*head).forward.emplace_back(nullptr);
 	}
 
 	return abs(level);
